@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -75,19 +36,19 @@
         button:hover {
             background-color: #0056b3;
         }
-        #preview, #memoryPreview {
+        #preview {
             border: 1px solid #ddd;
             padding: 10px;
             max-height: 400px;
             overflow-y: auto;
             background-color: #f9f9f9;
         }
-        .message, .memory {
+        .message {
             margin-bottom: 10px;
             padding: 10px;
             border-radius: 4px;
         }
-        .message.system, .memory {
+        .message.system {
             background-color: #f0f0f0;
         }
         .error {
@@ -97,10 +58,6 @@
         .warning {
             color: orange;
             font-weight: bold;
-        }
-        .section {
-            border-top: 2px solid #ccc;
-            padding-top: 15px;
         }
         @media (max-width: 600px) {
             body {
@@ -115,8 +72,6 @@
 <body>
     <div class="container">
         <h1>Chat Conversation Import Tool</h1>
-        <!-- Upload Section -->
-        <h2>Upload Conversations</h2>
         <input type="text" id="apiKey" placeholder="Remember API Key">
         <input type="text" id="userId" placeholder="User ID (e.g., email or database ID)">
         <input type="text" id="baseTimestamp" placeholder="Optional: Base Timestamp (YYYY-MM-DDTHH:MM:SSZ)">
@@ -136,26 +91,6 @@
             <button onclick="postToApi()" id="apiButton" disabled>POST to Remember API</button>
         </div>
         <div id="status" class="error"></div>
-
-        <!-- Retrieval Section -->
-        <div class="section">
-            <h2>Retrieve Memories</h2>
-            <input type="text" id="retrieveUserId" placeholder="User ID for retrieval">
-            <input type="text" id="retrieveSidlf" placeholder="Optional: SIDLF filter (e.g., Orion Sentinel)">
-            <input type="text" id="retrieveSessionId" placeholder="Optional: Session ID filter">
-            <button onclick="retrieveMemories()">Retrieve Memories</button>
-            <div id="memoryPreview"></div>
-            <div id="retrieveStatus" class="error"></div>
-        </div>
-
-        <!-- Prompt Stitcher Section -->
-        <div class="section">
-            <h2>Generate Prompt with Memories</h2>
-            <textarea id="queryInput" placeholder="Enter your query" rows="3"></textarea>
-            <button onclick="generatePrompt()">Generate Prompt</button>
-            <textarea id="promptOutput" placeholder="Generated prompt will appear here" rows="5" readonly></textarea>
-            <div id="promptStatus" class="error"></div>
-        </div>
     </div>
 
     <script>
@@ -163,7 +98,6 @@
         let conversation = [];
         let sourceUrl = 'openai_export';
         let sessionId = '';
-        let retrievedMemories = [];
 
         // Initialize IndexedDB
         let db;
@@ -344,8 +278,8 @@
                         chunk_id: `chunk_${chunkIdCounter++}`,
                         ...(sidlf && { sidlf }),
                         ...(currentChunk[0].create_time || baseTimestamp ? {
-                                    timestamp: currentChunk[0].create_time || new Date(currentTime.getTime() + messageIndex * 60000).toISOString()
-                                } : {})
+                            timestamp: currentChunk[0].create_time || new Date(currentTime.getTime() + messageIndex * 60000).toISOString()
+                        } : {})
                     });
                 }
             });
@@ -371,122 +305,6 @@
                                 `Source: ${msg.source_url || 'N/A'}, Session: ${msg.session_id}, SIDLF: ${msg.sidlf || 'N/A'}`;
                 preview.appendChild(div);
             });
-        }
-
-        // Retrieve memories from Remember API
-        async function retrieveMemories() {
-            const apiKey = document.getElementById('apiKey').value;
-            const userId = document.getElementById('retrieveUserId').value;
-            const sidlf = document.getElementById('retrieveSidlf').value;
-            const sessionId = document.getElementById('retrieveSessionId').value;
-            const status = document.getElementById('retrieveStatus');
-            const memoryPreview = document.getElementById('memoryPreview');
-
-            status.textContent = '';
-            retrievedMemories = [];
-
-            if (!apiKey || !userId) {
-                status.textContent = 'Missing API key or user ID.';
-                return;
-            }
-
-            try {
-                const response = await fetch('https://api.x.ai/v1/memories/get', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        apikey: apiKey,
-                        userid: userId,
-                        ...(sidlf && { additionalcontext: `sidlf:${sidlf}` }),
-                        ...(sessionId && { additionalcontext: `session_id:${sessionId}` })
-                    })
-                });
-                if (!response.ok) throw new Error('API request failed');
-                const data = await response.json();
-                retrievedMemories = data.memories || [];
-                renderMemoryPreview();
-            } catch (e) {
-                status.textContent = `Error retrieving memories: ${e.message}`;
-            }
-        }
-
-        // Render retrieved memories
-        function renderMemoryPreview() {
-            const memoryPreview = document.getElementById('memoryPreview');
-            memoryPreview.innerHTML = '';
-            retrievedMemories.forEach((memory, index) => {
-                const div = document.createElement('div');
-                div.className = 'memory';
-                const content = typeof memory === 'string' ? memory : memory.content;
-                const memoryId = typeof memory === 'object' ? memory.memoryId : 'N/A';
-                div.innerHTML = `<strong>Memory ${index + 1}</strong> (ID: ${memoryId}): ${content.substring(0, 100)}... <br>` +
-                                `<button onclick="deleteMemory('${memoryId}')">Delete</button>`;
-                memoryPreview.appendChild(div);
-            });
-        }
-
-        // Delete a memory
-        async function deleteMemory(memoryId) {
-            const apiKey = document.getElementById('apiKey').value;
-            const userId = document.getElementById('retrieveUserId').value;
-            const status = document.getElementById('retrieveStatus');
-
-            if (!apiKey || !userId || !memoryId) {
-                status.textContent = 'Missing API key, user ID, or memory ID.';
-                return;
-            }
-
-            try {
-                const response = await fetch('https://api.x.ai/v1/memories/delete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        apikey: apiKey,
-                        userid: userId,
-                        memoryId: memoryId
-                    })
-                });
-                if (!response.ok) throw new Error('API request failed');
-                status.textContent = `Memory ${memoryId} deleted successfully!`;
-                retrieveMemories(); // Refresh memory list
-            } catch (e) {
-                status.textContent = `Error deleting memory: ${e.message}`;
-            }
-        }
-
-        // Generate prompt with stitched memories
-        function generatePrompt() {
-            const query = document.getElementById('queryInput').value;
-            const promptOutput = document.getElementById('promptOutput');
-            const status = document.getElementById('promptStatus');
-            const k = 3; // Top-k memories
-
-            if (!query) {
-                status.textContent = 'Please enter a query.';
-                return;
-            }
-
-            if (!retrievedMemories.length) {
-                status.textContent = 'No memories retrieved. Please retrieve memories first.';
-                return;
-            }
-
-            // Simple client-side stitching (limited to retrieved memories)
-            const topMemories = retrievedMemories.slice(0, k);
-            const memoryContext = topMemories.map((memory, index) => {
-                const content = typeof memory === 'string' ? memory : memory.content;
-                return `Memory ${index + 1}: ${content}`;
-            }).join('\n\n');
-            const prompt = `${memoryContext}\n\nCurrent Query: ${query}`;
-
-            promptOutput.value = prompt;
-            status.textContent = 'Prompt generated successfully!';
         }
 
         // Download as JSON
@@ -560,6 +378,6 @@
             }
         }
     </script>
-<br><br><center><a href="index.html"><img src="home.png"</a></center>
+<br><br><a href="index.html"><img src="home.png" alt="home" width="100" height="100"></a>
 </body>
 </html>
