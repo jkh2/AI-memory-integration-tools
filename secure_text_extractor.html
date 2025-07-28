@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatWeaver - Conversation Text Extractor</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center; 
+            color: #666; 
+            margin-bottom: 30px; 
+            font-style: italic;
+        }
+        .form-group { 
+            margin: 20px 0; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            color: #555;
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #007cba;
+            outline: none;
+        }
+        button { 
+            background: #007cba; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover { 
+            background: #005a87; 
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            border: 2px solid #c3e6cb; 
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border: 2px solid #f5c6cb; 
+        }
+        .loading { 
+            background: #d1ecf1; 
+            color: #0c5460; 
+            border: 2px solid #bee5eb; 
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .upload-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 6px;
+            border: 1px solid #b3d9ff;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007cba, #4de4e4);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .security-note {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .destination-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjMjEyOTMzIiByeD0iMTAiLz4KPCEtLSBTcGlkZXIgV2ViIC0tPgo8IS0tIFJhZGlhbCBsaW5lcyBmcm9tIGNlbnRlciAtLT4KPGxpbmUgeDE9IjUwIiB5MT0iNTAiIHgyPSI1MCIgeTI9IjE1IiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxsaW5lIHgxPSI1MCIgeTE9IjUwIiB4Mj0iNzMiIHkyPSIyNyIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8bGluZSB4MT0iNTAiIHkxPSI1MCIgeDI9Ijg1IiB5Mj0iNTAiIHN0cm9rZT0iIzRERTRFNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGxpbmUgeDE9IjUwIiB5MT0iNTAiIHgyPSI3MyIgeTI9IjczIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxsaW5lIHgxPSI1MCIgeTE9IjUwIiB4Mj0iNTAiIHkyPSI4NSIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8bGluZSB4MT0iNTAiIHkxPSI1MCIgeDI9IjI3IiB5Mj0iNzMiIHN0cm9rZT0iIzRERTRFNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGxpbmUgeDE9IjUwIiB5MT0iNTAiIHgyPSIxNSIgeTI9IjUwIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxsaW5lIHgxPSI1MCIgeTE9IjUwIiB4Mj0iMjciIHkyPSIyNyIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8IS0tIENvbmNlbnRyaWMgd2ViIGNpcmNsZXMgLS0+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjEyIiBmaWxsPSJub25lIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjMwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjwhLS0gQ2hhdCBCdWJibGUgaW4gY2VudGVyIC0tPgo8Y2lyY2xlIGN4PSI1MCIgY3k9IjQ3IiByPSI4IiBmaWxsPSIjNERFNEU0Ii8+CjxjaXJjbGUgY3g9IjU2IiBjeT0iNTMiIHI9IjQiIGZpbGw9IiM0REU0RTQiLz4KPGNpcmNsZSBjeD0iNjAiIGN5PSI1NiIgcj0iMiIgZmlsbD0iIzRERTRFNCIvPgo8dGV4dCB4PSI1MCIgeT0iODAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIj5DaGF0V2VhdmVyPC90ZXh0Pgo8L3N2Zz4K" 
+                 alt="ChatWeaver Logo" 
+                 style="width: 100px; height: 100px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        </div>
+        <h1>Conversation Text Extractor</h1>
+        <p class="subtitle">By Sentinel AI Systems</p>
+        
+        <div class="security-note">
+            <strong>🔐 Privacy & Security:</strong> Your API keys and conversation data are processed locally in your browser and sent directly to RememberAPI. This tool does not store or transmit your credentials to any third party.
+        </div>
+        
+        <div class="form-group">
+            <label for="fileInput">📁 Select your conversations.json file:</label>
+            <input type="file" id="fileInput" accept=".json" onchange="analyzeConversations()">
+            <div class="file-info" id="fileAnalysis" style="display: none;">
+                File analysis will appear here...
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="chunkStrategy">📏 Chunking Strategy:</label>
+            <select id="chunkStrategy" onchange="updateChunkInfo()">
+                <option value="10_large">10 Large Chunks (Recommended - ~4K conversations each)</option>
+                <option value="5_massive">5 Massive Chunks (~8K conversations each)</option>
+                <option value="20_medium">20 Medium Chunks (~2K conversations each)</option>
+                <option value="custom">Custom Number of Chunks</option>
+            </select>
+            <div class="file-info" id="chunkInfo">
+                Creates exactly 10 manageable chunks for RememberAPI - much more efficient than thousands of tiny pieces!
+            </div>
+        </div>
+        
+        <div class="form-group" id="customChunkGroup" style="display: none;">
+            <label for="customChunkCount">🔢 Number of chunks to create:</label>
+            <input type="number" id="customChunkCount" value="10" min="1" max="50" placeholder="Enter number of chunks">
+        </div>
+        
+        <div class="form-group">
+            <label for="includeTimestamps">🕐 Include timestamps in extracted text:</label>
+            <select id="includeTimestamps">
+                <option value="true">Yes - Include conversation dates</option>
+                <option value="false">No - Just message content</option>
+            </select>
+        </div>
+        
+        <button onclick="extractText()" id="extractBtn">🔧 Extract & Process Text</button>
+        
+        <div class="progress-bar" id="progressBar" style="display: none;">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div id="status"></div>
+        
+        <div id="uploadSection" class="upload-section" style="display: none;">
+            <h3>🚀 Upload to RememberAPI</h3>
+            
+            <div class="form-group">
+                <label for="apiKey">🔑 Your RememberAPI API Key:</label>
+                <input type="password" id="apiKey" placeholder="Enter your RememberAPI API key (starts with 'sk-')" autocomplete="off">
+                <div class="file-info">
+                    <strong>Where to find:</strong> Log into RememberAPI.com → Dashboard → API Keys. Keep this secure!
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="userId">👤 Your User ID:</label>
+                <input type="text" id="userId" placeholder="Enter your unique user identifier" autocomplete="off">
+                <div class="file-info">
+                    Use any consistent identifier: your name, email, username, etc. RememberAPI uses this for organization.
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="destination">🎯 Upload Destination:</label>
+                <select id="destination" onchange="updateDestinationInfo()">
+                    <option value="knowledge">Knowledge Bank - Document Storage (Recommended)</option>
+                    <option value="memory">Core Memory - Personal AI Context (Limited Processing)</option>
+                    <option value="both">Both Systems - Maximum Coverage (High API Usage)</option>
+                </select>
+                <div class="destination-info" id="destinationInfo">
+                    <strong>Knowledge Bank:</strong> Best for large conversation archives. Uses RememberAPI's SliceDiceChunk engine for automatic processing and makes content searchable via /v1/knowledge/get API.
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="knowledgeTitle">📝 Title for your content:</label>
+                <input type="text" id="knowledgeTitle" value="AI Conversation Archive" placeholder="Enter a descriptive title">
+            </div>
+            
+            <div class="form-group">
+                <label for="tags">🏷️ Tags (comma-separated):</label>
+                <input type="text" id="tags" value="conversations, ai_archive, chatgpt_export" placeholder="tag1, tag2, tag3">
+            </div>
+            
+            <button onclick="uploadToRememberAPI()" id="uploadBtn">📤 Upload to RememberAPI</button>
+            <button onclick="pauseUpload()" id="pauseBtn" style="background: #dc3545; display: none;">⏸️ Pause Upload</button>
+            
+            <div id="uploadProgress" style="display: none; margin-top: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span id="progressText">Preparing upload...</span>
+                    <span id="progressNumbers">0 / 0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="uploadProgressFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 14px;">
+        OpenAI → Remember AI Conversations
+    </footer>
+
+    <script>
+        let extractedChunks = [];
+        let conversationData = null;
+        let uploadPaused = false;
+        let uploadInProgress = false;
+
+        function updateChunkInfo() {
+            const strategy = document.getElementById('chunkStrategy').value;
+            const customGroup = document.getElementById('customChunkGroup');
+            const chunkInfo = document.getElementById('chunkInfo');
+            
+            if (strategy === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+            }
+            
+            const descriptions = {
+                '10_large': 'Creates exactly 10 manageable chunks for RememberAPI - much more efficient than thousands of tiny pieces!',
+                '5_massive': 'Creates 5 very large chunks - fewer API calls but larger content per piece.',
+                '20_medium': 'Creates 20 medium chunks for more granular organization.',
+                'custom': 'Specify exactly how many chunks you want to create.'
+            };
+            
+            chunkInfo.innerHTML = descriptions[strategy];
+        }
+
+        function updateDestinationInfo() {
+            const destination = document.getElementById('destination').value;
+            const infoDiv = document.getElementById('destinationInfo');
+            
+            const descriptions = {
+                knowledge: '<strong>Knowledge Bank:</strong> Best for large conversation archives. Uses RememberAPI\'s SliceDiceChunk engine for automatic processing and makes content searchable via /v1/knowledge/get API. <em>Requires Knowledge Bank add-on.</em>',
+                memory: '<strong>⚠️ Core Memory:</strong> Creates personalized AI context through individual conversation processing. <span style="color: #721c24;"><strong>Limited to first 50 conversations</strong> to prevent API overuse. Best for small, important datasets.</span>',
+                both: '<strong>⚠️ Both Systems:</strong> Uploads to Knowledge Bank AND processes conversations for Core Memory. <span style="color: #721c24;"><strong>Very high API usage</strong> - monitor your quotas carefully.</span>'
+            };
+            
+            infoDiv.innerHTML = descriptions[destination];
+        }
+
+        function getChunkCount() {
+            const strategy = document.getElementById('chunkStrategy').value;
+            const customCount = parseInt(document.getElementById('customChunkCount').value) || 10;
+            
+            switch(strategy) {
+                case '5_massive': return 5;
+                case '10_large': return 10;
+                case '20_medium': return 20;
+                case 'custom': return Math.max(1, Math.min(50, customCount));
+                default: return 10;
+            }
+        }
+
+        async function analyzeConversations() {
+            const fileInput = document.getElementById('fileInput');
+            const fileAnalysis = document.getElementById('fileAnalysis');
+            
+            if (!fileInput.files[0]) {
+                fileAnalysis.style.display = 'none';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            showStatus('📖 Analyzing conversation export...', 'loading');
+            
+            try {
+                const fileContent = await file.text();
+                conversationData = JSON.parse(fileContent);
+                
+                // Analyze structure
+                let totalMessages = 0;
+                let conversationCount = 0;
+                let estimatedWords = 0;
+                
+                if (Array.isArray(conversationData)) {
+                    conversationCount = conversationData.length;
+                    conversationData.forEach(conv => {
+                        if (conv.mapping) {
+                            Object.values(conv.mapping).forEach(node => {
+                                if (node.message && node.message.content && node.message.content.parts) {
+                                    totalMessages++;
+                                    node.message.content.parts.forEach(part => {
+                                        if (typeof part === 'string') {
+                                            estimatedWords += part.split(' ').length;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                } else if (conversationData.mapping) {
+                    conversationCount = 1;
+                    Object.values(conversationData.mapping).forEach(node => {
+                        if (node.message && node.message.content && node.message.content.parts) {
+                            totalMessages++;
+                            node.message.content.parts.forEach(part => {
+                                if (typeof part === 'string') {
+                                    estimatedWords += part.split(' ').length;
+                                }
+                            });
+                        }
+                    });
+                }
+                
+                fileAnalysis.innerHTML = `
+                    <strong>✅ Conversation Export Detected!</strong><br>
+                    <strong>Conversations:</strong> ${conversationCount.toLocaleString()}<br>
+                    <strong>Total Messages:</strong> ${totalMessages.toLocaleString()}<br>
+                    <strong>Estimated Words:</strong> ${estimatedWords.toLocaleString()}<br>
+                    <strong>File Size:</strong> ${(file.size / (1024 * 1024)).toFixed(2)} MB<br>
+                    <br>
+                    <strong>📊 Chunking Preview:</strong><br>
+                    10 chunks = ${Math.ceil(conversationCount / 10).toLocaleString()} conversations per chunk<br>
+                    5 chunks = ${Math.ceil(conversationCount / 5).toLocaleString()} conversations per chunk<br>
+                    20 chunks = ${Math.ceil(conversationCount / 20).toLocaleString()} conversations per chunk
+                `;
+                fileAnalysis.style.display = 'block';
+                
+                showStatus(`✅ Analysis complete! Found ${totalMessages.toLocaleString()} messages across ${conversationCount.toLocaleString()} conversations.`, 'success');
+                
+            } catch (error) {
+                showStatus('❌ Error reading file. Make sure it\'s a valid conversation export.', 'error');
+                fileAnalysis.style.display = 'none';
+                conversationData = null;
+            }
+        }
+
+        async function extractText() {
+            if (!conversationData) {
+                showStatus('❌ Please select a valid conversation file first.', 'error');
+                return;
+            }
+            
+            const targetChunkCount = getChunkCount();
+            const includeTimestamps = document.getElementById('includeTimestamps').value === 'true';
+            const extractBtn = document.getElementById('extractBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            extractBtn.disabled = true;
+            extractBtn.textContent = '⏳ Processing...';
+            progressBar.style.display = 'block';
+            extractedChunks = [];
+            
+            try {
+                showStatus(`🔧 Creating ${targetChunkCount} large text chunks...`, 'loading');
+                
+                const conversations = Array.isArray(conversationData) ? conversationData : [conversationData];
+                const totalConversations = conversations.length;
+                
+                if (totalConversations === 0) {
+                    throw new Error('No conversations found in the file');
+                }
+                
+                const conversationsPerChunk = Math.ceil(totalConversations / targetChunkCount);
+                
+                showStatus(`📊 Processing ${totalConversations.toLocaleString()} conversations into ${targetChunkCount} chunks (${conversationsPerChunk.toLocaleString()} conversations per chunk)...`, 'loading');
+                
+                for (let chunkIndex = 0; chunkIndex < targetChunkCount; chunkIndex++) {
+                    const startIndex = chunkIndex * conversationsPerChunk;
+                    const endIndex = Math.min(startIndex + conversationsPerChunk, totalConversations);
+                    const chunkConversations = conversations.slice(startIndex, endIndex);
+                    
+                    if (chunkConversations.length === 0) break;
+                    
+                    // Process this chunk's conversations into readable text
+                    let chunkText = '';
+                    
+                    for (const conversation of chunkConversations) {
+                        if (conversation.mapping) {
+                            const title = conversation.title || `Conversation ${startIndex + chunkConversations.indexOf(conversation) + 1}`;
+                            const createTime = conversation.create_time ? new Date(conversation.create_time * 1000).toLocaleDateString() : 'Unknown Date';
+                            
+                            if (includeTimestamps) {
+                                chunkText += `\n\n=== ${title} (${createTime}) ===\n\n`;
+                            } else {
+                                chunkText += `\n\n=== ${title} ===\n\n`;
+                            }
+                            
+                            const nodes = Object.values(conversation.mapping);
+                            const sortedNodes = nodes.filter(node => 
+                                node.message && 
+                                node.message.content && 
+                                node.message.content.parts && 
+                                node.message.content.parts.length > 0
+                            ).sort((a, b) => {
+                                const timeA = a.message.create_time || 0;
+                                const timeB = b.message.create_time || 0;
+                                return timeA - timeB;
+                            });
+                            
+                            for (const node of sortedNodes) {
+                                const message = node.message;
+                                const role = message.author?.role || 'unknown';
+                                const content = message.content.parts.join(' ').trim();
+                                
+                                if (content && content.length > 0) {
+                                    const speaker = role === 'user' ? 'Human' : role === 'assistant' ? 'Assistant' : role;
+                                    chunkText += `${speaker}: ${content}\n\n`;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Create the chunk
+                    if (chunkText.trim().length > 0) {
+                        const wordCount = chunkText.trim().split(/\s+/).length;
+                        extractedChunks.push({
+                            content: chunkText.trim(),
+                            wordCount: wordCount,
+                            conversationCount: chunkConversations.length,
+                            chunkNumber: chunkIndex + 1
+                        });
+                    }
+                    
+                    // Update progress
+                    const progress = ((chunkIndex + 1) / targetChunkCount) * 100;
+                    progressFill.style.width = `${progress}%`;
+                    
+                    showStatus(`🔧 Created chunk ${chunkIndex + 1}/${targetChunkCount} (${chunkConversations.length} conversations, ${chunkText.trim().split(/\s+/).length.toLocaleString()} words)...`, 'loading');
+                    
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                progressFill.style.width = '100%';
+                
+                const totalWords = extractedChunks.reduce((sum, chunk) => sum + chunk.wordCount, 0);
+                const totalConversationsProcessed = extractedChunks.reduce((sum, chunk) => sum + chunk.conversationCount, 0);
+                
+                showStatus(`🎉 Success! Created ${extractedChunks.length} large chunks<br><br>📊 <strong>Total: ${totalConversationsProcessed.toLocaleString()} conversations, ${totalWords.toLocaleString()} words</strong><br>📡 <strong>This will make only ${extractedChunks.length} API calls!</strong> (Much better than thousands!)`, 'success');
+                
+                document.getElementById('uploadSection').style.display = 'block';
+                
+            } catch (error) {
+                showStatus(`❌ Error during processing: ${error.message}`, 'error');
+            } finally {
+                extractBtn.disabled = false;
+                extractBtn.textContent = '🔧 Extract & Process Text';
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 2000);
+            }
+        }
+
+        async function uploadToRememberAPI() {
+            if (uploadInProgress) {
+                showStatus('❌ Upload already in progress. Use pause button to stop.', 'error');
+                return;
+            }
+            
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const userId = document.getElementById('userId').value.trim();
+            const destination = document.getElementById('destination').value;
+            const knowledgeTitle = document.getElementById('knowledgeTitle').value.trim();
+            const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+            
+            // Validation
+            if (!apiKey) {
+                showStatus('❌ Please enter your RememberAPI API key', 'error');
+                return;
+            }
+            
+            if (!userId) {
+                showStatus('❌ Please enter your User ID', 'error');
+                return;
+            }
+            
+            if (extractedChunks.length === 0) {
+                showStatus('❌ No chunks to upload. Process conversations first.', 'error');
+                return;
+            }
+            
+            // Confirmation
+            const totalChunks = extractedChunks.length;
+            const confirmed = confirm(`🚀 Ready to upload ${totalChunks} chunks to RememberAPI ${destination === 'knowledge' ? 'Knowledge Bank' : destination === 'memory' ? 'Core Memory' : 'both systems'}!\n\nThis will make ${destination === 'both' ? totalChunks + ' + processing calls' : totalChunks} API calls.\n\nProceed with upload?`);
+            if (!confirmed) return;
+            
+            uploadInProgress = true;
+            uploadPaused = false;
+            const uploadBtn = document.getElementById('uploadBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const progressText = document.getElementById('progressText');
+            const progressNumbers = document.getElementById('progressNumbers');
+            const uploadProgressFill = document.getElementById('uploadProgressFill');
+            
