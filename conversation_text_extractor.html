@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatWeaver - Conversation Text Extractor</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center; 
+            color: #666; 
+            margin-bottom: 30px; 
+            font-style: italic;
+        }
+        .form-group { 
+            margin: 20px 0; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            color: #555;
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #007cba;
+            outline: none;
+        }
+        button { 
+            background: #007cba; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover { 
+            background: #005a87; 
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            border: 2px solid #c3e6cb; 
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border: 2px solid #f5c6cb; 
+        }
+        .loading { 
+            background: #d1ecf1; 
+            color: #0c5460; 
+            border: 2px solid #bee5eb; 
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .upload-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 6px;
+            border: 1px solid #b3d9ff;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007cba, #4de4e4);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjMjEyOTMzIiByeD0iMTAiLz4KPCEtLSBEb2N1bWVudCBJY29uIC0tPgo8cGF0aCBkPSJNMjAgMzBIMzVWMjVIMzBWMjBIMjBWMzBaIiBmaWxsPSIjNERFNEU0Ii8+CjxwYXRoIGQ9Ik0yMCAzNUgzNVYzMEgyMFYzNVoiIGZpbGw9IiM0REU0RTQiLz4KPHBhdGggZD0iTTIwIDQwSDMwVjM1SDIwVjQwWiIgZmlsbD0iIzRERTRFNCIvPgo8IS0tIEFycm93IC0tPgo8cGF0aCBkPSJNNDAgMzJMNTAgMzJMNDYgMjhMNTAgMjRMNTQgMjhMNTAgMzJMNjAgMzJMNTYgMzZMNjAgNDBMNTAgNDBMNTQgMzZMNTAgMzJaIiBmaWxsPSIjNERFNEU0Ii8+CjwhLS0gQnJhaW4gSWNvbiAtLT4KPGNpcmNsZSBjeD0iNzUiIGN5PSIzMiIgcj0iMTgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRERTRFNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Ik02OCAyNUM2OSAyMyA3MSAyMiA3MyAyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8cGF0aCBkPSJNNzggMjVDNzkgMjMgODEgMjIgODMgMjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRERTRFNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPHBhdGggZD0iTTY4IDM5Qzc5IDM1IDgxIDM3IDgzIDM5IiBmaWxsPSJub25lIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxwYXRoIGQ9Ik03MCAzMkM3MiAzMCA3NCAzMCA3NiAzMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8dGV4dCB4PSI1MCIgeT0iNzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj5DaGF0V2VhdmVyPC90ZXh0Pgo8L3N2Zz4K" 
+                 alt="ChatWeaver Logo" 
+                 style="width: 100px; height: 100px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        </div>
+        <h1>Conversation Text Extractor</h1>
+        <p class="subtitle">By Sentinel AI Systems</p>
+        
+        <div class="warning">
+            <strong>🎯 Problem Solved!</strong> RememberAPI Knowledge Bank expects <strong>plain text</strong>, not JSON structures.<br>
+            This tool extracts readable conversation text from your OpenAI export and formats it properly for upload.
+        </div>
+        
+        <div class="form-group">
+            <label for="fileInput">📁 Select your conversations.json file:</label>
+            <input type="file" id="fileInput" accept=".json" onchange="analyzeConversations()">
+            <div class="file-info" id="fileAnalysis" style="display: none;">
+                File analysis will appear here...
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="chunkSize">📏 Text chunk size (words per chunk):</label>
+            <select id="chunkSize">
+                <option value="500">500 words per chunk (Recommended)</option>
+                <option value="750">750 words per chunk</option>
+                <option value="1000">1000 words per chunk</option>
+                <option value="1500">1500 words per chunk</option>
+            </select>
+            <div class="file-info">
+                Smaller chunks = more precise retrieval, larger chunks = more context per piece
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="includeTimestamps">🕐 Include timestamps in extracted text:</label>
+            <select id="includeTimestamps">
+                <option value="true">Yes - Include conversation dates</option>
+                <option value="false">No - Just message content</option>
+            </select>
+        </div>
+        
+        <button onclick="extractAndUpload()" id="extractBtn">🔧 Extract Text & Upload to RememberAPI</button>
+        
+        <div class="progress-bar" id="progressBar" style="display: none;">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div id="status"></div>
+        
+        <div id="uploadSection" class="upload-section" style="display: none;">
+            <h3>🚀 Ready for RememberAPI Upload</h3>
+            
+            <div class="form-group">
+                <label for="apiKey">🔑 Your RememberAPI Key:</label>
+                <input type="password" id="apiKey" placeholder="Enter your API key">
+            </div>
+            
+            <div class="form-group">
+                <label for="userId">👤 Your User ID:</label>
+                <input type="text" id="userId" value="james_keith_harwood" placeholder="Your unique identifier">
+            </div>
+            
+            <div class="form-group">
+                <label for="knowledgeTitle">📝 Knowledge Bank Title:</label>
+                <input type="text" id="knowledgeTitle" value="ChatGPT Conversation Archive">
+            </div>
+            
+            <button onclick="uploadToRememberAPI()" id="uploadBtn">📤 Upload All Chunks to Knowledge Bank</button>
+        </div>
+    </div>
+    
+    <footer style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 14px;">
+        OpenAI → Remember AI Conversations
+    </footer>
+
+    <script>
+        let extractedChunks = [];
+        let conversationData = null;
+
+        async function analyzeConversations() {
+            const fileInput = document.getElementById('fileInput');
+            const fileAnalysis = document.getElementById('fileAnalysis');
+            
+            if (!fileInput.files[0]) {
+                fileAnalysis.style.display = 'none';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            showStatus('📖 Analyzing OpenAI conversation export...', 'loading');
+            
+            try {
+                const fileContent = await file.text();
+                conversationData = JSON.parse(fileContent);
+                
+                // Analyze OpenAI export structure
+                let totalMessages = 0;
+                let conversationCount = 0;
+                let estimatedWords = 0;
+                
+                if (Array.isArray(conversationData)) {
+                    // Handle array of conversations
+                    conversationCount = conversationData.length;
+                    conversationData.forEach(conv => {
+                        if (conv.mapping) {
+                            Object.values(conv.mapping).forEach(node => {
+                                if (node.message && node.message.content && node.message.content.parts) {
+                                    totalMessages++;
+                                    node.message.content.parts.forEach(part => {
+                                        if (typeof part === 'string') {
+                                            estimatedWords += part.split(' ').length;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                } else if (conversationData.mapping) {
+                    // Handle single conversation
+                    conversationCount = 1;
+                    Object.values(conversationData.mapping).forEach(node => {
+                        if (node.message && node.message.content && node.message.content.parts) {
+                            totalMessages++;
+                            node.message.content.parts.forEach(part => {
+                                if (typeof part === 'string') {
+                                    estimatedWords += part.split(' ').length;
+                                }
+                            });
+                        }
+                    });
+                }
+                
+                fileAnalysis.innerHTML = `
+                    <strong>✅ OpenAI Export Detected!</strong><br>
+                    <strong>Conversations:</strong> ${conversationCount.toLocaleString()}<br>
+                    <strong>Total Messages:</strong> ${totalMessages.toLocaleString()}<br>
+                    <strong>Estimated Words:</strong> ${estimatedWords.toLocaleString()}<br>
+                    <strong>File Size:</strong> ${(file.size / (1024 * 1024)).toFixed(2)} MB
+                `;
+                fileAnalysis.style.display = 'block';
+                
+                showStatus(`✅ Analysis complete! Found ${totalMessages.toLocaleString()} messages across ${conversationCount.toLocaleString()} conversations.`, 'success');
+                
+            } catch (error) {
+                showStatus('❌ Error reading file. Make sure it\'s a valid OpenAI conversation export.', 'error');
+                fileAnalysis.style.display = 'none';
+                conversationData = null;
+            }
+        }
+
+        async function extractAndUpload() {
+            if (!conversationData) {
+                showStatus('❌ Please select a valid conversation file first.', 'error');
+                return;
+            }
+            
+            const chunkSize = parseInt(document.getElementById('chunkSize').value);
+            const includeTimestamps = document.getElementById('includeTimestamps').value === 'true';
+            const extractBtn = document.getElementById('extractBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            extractBtn.disabled = true;
+            extractBtn.textContent = '⏳ Extracting...';
+            progressBar.style.display = 'block';
+            extractedChunks = [];
+            
+            try {
+                showStatus('🔧 Extracting readable text from conversations...', 'loading');
+                
+                // Extract all text content
+                let allText = '';
+                let processedConversations = 0;
+                let totalConversations = 0;
+                
+                // Determine if it's an array or single conversation
+                const conversations = Array.isArray(conversationData) ? conversationData : [conversationData];
+                totalConversations = conversations.length;
+                
+                for (const conversation of conversations) {
+                    if (conversation.mapping) {
+                        // Add conversation header
+                        const title = conversation.title || `Conversation ${processedConversations + 1}`;
+                        const createTime = conversation.create_time ? new Date(conversation.create_time * 1000).toLocaleDateString() : 'Unknown Date';
+                        
+                        if (includeTimestamps) {
+                            allText += `\n\n=== ${title} (${createTime}) ===\n\n`;
+                        }
+                        
+                        // Process conversation nodes in order
+                        const nodes = Object.values(conversation.mapping);
+                        const sortedNodes = nodes.filter(node => 
+                            node.message && 
+                            node.message.content && 
+                            node.message.content.parts && 
+                            node.message.content.parts.length > 0
+                        ).sort((a, b) => {
+                            const timeA = a.message.create_time || 0;
+                            const timeB = b.message.create_time || 0;
+                            return timeA - timeB;
+                        });
+                        
+                        for (const node of sortedNodes) {
+                            const message = node.message;
+                            const role = message.author?.role || 'unknown';
+                            const content = message.content.parts.join(' ').trim();
+                            
+                            if (content && content.length > 0) {
+                                const speaker = role === 'user' ? 'Human' : role === 'assistant' ? 'Assistant' : role;
+                                allText += `${speaker}: ${content}\n\n`;
+                            }
+                        }
+                    }
+                    
+                    processedConversations++;
+                    const progress = (processedConversations / totalConversations) * 50; // 50% for extraction
+                    progressFill.style.width = `${progress}%`;
+                    
+                    if (processedConversations % 100 === 0) {
+                        showStatus(`🔧 Extracted ${processedConversations}/${totalConversations} conversations...`, 'loading');
+                        await new Promise(resolve => setTimeout(resolve, 10)); // Allow UI update
+                    }
+                }
+                
+                showStatus('📏 Splitting text into optimal chunks...', 'loading');
+                
+                // Split into chunks
+                const words = allText.split(/\s+/).filter(word => word.length > 0);
+                const totalWords = words.length;
+                
+                for (let i = 0; i < words.length; i += chunkSize) {
+                    const chunkWords = words.slice(i, i + chunkSize);
+                    const chunkText = chunkWords.join(' ');
+                    
+                    if (chunkText.trim().length > 0) {
+                        extractedChunks.push({
+                            content: chunkText.trim(),
+                            wordCount: chunkWords.length,
+                            chunkNumber: extractedChunks.length + 1
+                        });
+                    }
+                    
+                    // Update progress (50% to 100%)
+                    const progress = 50 + ((i / words.length) * 50);
+                    progressFill.style.width = `${progress}%`;
+                }
+                
+                progressFill.style.width = '100%';
+                
+                showStatus(`🎉 Extraction complete! Created ${extractedChunks.length} text chunks (${totalWords.toLocaleString()} total words)`, 'success');
+                
+                // Show upload section
+                document.getElementById('uploadSection').style.display = 'block';
+                
+            } catch (error) {
+                showStatus(`❌ Error during extraction: ${error.message}`, 'error');
+            } finally {
+                extractBtn.disabled = false;
+                extractBtn.textContent = '🔧 Extract Text & Upload to RememberAPI';
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 2000);
+            }
+        }
+
+        async function uploadToRememberAPI() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const userId = document.getElementById('userId').value.trim();
+            const knowledgeTitle = document.getElementById('knowledgeTitle').value.trim();
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            if (!apiKey || !userId) {
+                showStatus('❌ Please enter your API key and User ID', 'error');
+                return;
+            }
+            
+            if (extractedChunks.length === 0) {
+                showStatus('❌ No text chunks to upload. Extract conversations first.', 'error');
+                return;
+            }
+            
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = '⏳ Uploading...';
+            
+            let successCount = 0;
+            let errorCount = 0;
+            
+            try {
+                showStatus(`🚀 Uploading ${extractedChunks.length} text chunks to RememberAPI Knowledge Bank...`, 'loading');
+                
+                for (let i = 0; i < extractedChunks.length; i++) {
+                    const chunk = extractedChunks[i];
+                    
+                    try {
+                        const response = await fetch('https://rememberapi.com/v1/knowledge/add', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                apikey: apiKey,
+                                userid: userId,
+                                content: chunk.content, // Raw text, not JSON!
+                                title: `${knowledgeTitle} - Part ${chunk.chunkNumber}`,
+                                tags: ['chatgpt_export', 'conversations', 'openai_archive']
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            successCount++;
+                        } else {
+                            const errorText = await response.text();
+                            console.error(`Chunk ${i + 1} failed:`, errorText);
+                            errorCount++;
+                        }
+                        
+                    } catch (error) {
+                        console.error(`Network error for chunk ${i + 1}:`, error);
+                        errorCount++;
+                    }
+                    
+                    // Update progress
+                    const progress = ((i + 1) / extractedChunks.length) * 100;
+                    showStatus(`📤 Uploading... ${i + 1}/${extractedChunks.length} chunks (${Math.round(progress)}%)`, 'loading');
+                    
+                    // Small delay to respect rate limits
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+                
+                if (successCount > 0) {
+                    showStatus(`🎉 Upload complete! ${successCount} chunks uploaded successfully, ${errorCount} errors.<br><br>✅ Your conversations are now in the RememberAPI Knowledge Bank!<br>✅ Query them using /v1/knowledge/get<br>✅ Check your RememberAPI dashboard to see the uploaded content`, 'success');
+                } else {
+                    showStatus(`❌ Upload failed! ${errorCount} errors. Check your API key and account status.`, 'error');
+                }
+                
+            } catch (error) {
+                showStatus(`❌ Upload error: ${error.message}`, 'error');
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = '📤 Upload All Chunks to Knowledge Bank';
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = `status ${type}`;
+        }
+    </script>
+</body>
+</html>
