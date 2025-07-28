@@ -1,21 +1,176 @@
-MIT License
+ChatWeaver Proprietary License Agreement (CPLA)
+Copyright © 2025 Sentinel AI Systems. All Rights Reserved.
 
-Copyright (c) 2025 James Keith Harwood II
+IMPORTANT NOTICE
+This software and all associated materials are proprietary and confidential to Sentinel AI Systems. By downloading, accessing, or using this software, you agree to be bound by the terms of this license agreement.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. GRANT OF LIMITED LICENSE
+Subject to the terms and conditions of this Agreement, Sentinel AI Systems grants you a limited, non-exclusive, non-transferable, revocable license to:
+✅ PERMITTED USES:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Personal Use: Use the software for your own conversation processing needs
+Internal Business Use: Use within your organization for processing your own data
+Educational Use: Use for learning and educational purposes
+Evaluation: Test and evaluate the software's capabilities
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+❌ PROHIBITED USES:
+
+Commercial Redistribution: Sell, license, or redistribute the software
+Derivative Commercial Products: Create competing products based on this software
+Service Offerings: Offer the software as a service to third parties
+Reverse Engineering: Attempt to reverse engineer, decompile, or extract source logic
+Modification for Distribution: Modify and redistribute altered versions
+Competitive Use: Use to develop competing AI memory integration tools
+
+
+2. INTELLECTUAL PROPERTY PROTECTION
+PROPRIETARY RIGHTS:
+
+All Rights Reserved: Sentinel AI Systems retains all rights, title, and interest
+Trade Secrets: The software contains valuable trade secrets and proprietary methods
+Patents: May be covered by pending or issued patents
+Trademarks: "ChatWeaver" and "Sentinel AI Systems" are protected trademarks
+
+CONFIDENTIALITY:
+
+The software contains confidential and proprietary information
+You agree to maintain strict confidentiality of the software's design and methods
+You will not disclose, publish, or share the software's proprietary techniques
+
+
+3. ATTRIBUTION REQUIREMENTS
+MANDATORY ATTRIBUTION:
+When using this software, you MUST:
+
+Retain all copyright notices and license text
+Credit Sentinel AI Systems in any public use or mention
+Include attribution in any documentation or materials that reference the software
+Link back to the original repository when feasible
+
+ATTRIBUTION FORMAT:
+Powered by ChatWeaver by Sentinel AI Systems
+https://github.com/jkh2/sentinel-memory-integration-tools
+
+4. RESTRICTIONS ON MODIFICATION
+SOURCE CODE:
+
+You may view and study the source code for learning purposes
+You may make personal modifications for your own use only
+You MAY NOT distribute modified versions under any circumstances
+You MAY NOT use our code as a foundation for competing products
+
+DERIVATIVE WORKS:
+
+Any derivative works remain the property of Sentinel AI Systems
+You grant Sentinel AI Systems perpetual rights to any improvements you make
+Derivative works may not be distributed without explicit written permission
+
+
+5. COMMERCIAL RESTRICTIONS
+NO COMMERCIAL EXPLOITATION:
+
+You CANNOT charge others for access to this software
+You CANNOT include this software in commercial products without licensing
+You CANNOT offer consulting services based solely on this software
+You CANNOT create SaaS offerings using this software
+
+COMMERCIAL LICENSING AVAILABLE:
+
+Contact Sentinel AI Systems for commercial licensing terms
+Enterprise licenses available with different terms and support
+Custom licensing for integration into commercial products
+Professional services and white-label solutions available
+
+
+6. DATA AND PRIVACY
+YOUR DATA:
+
+Sentinel AI Systems makes no claim to data you process with the software
+You are solely responsible for data security and privacy compliance
+You must comply with all applicable laws regarding data processing
+
+USAGE ANALYTICS:
+
+Sentinel AI Systems may collect anonymous usage statistics
+No personal data or conversation content is collected
+Analytics help improve the software and user experience
+
+
+7. TERMINATION
+AUTOMATIC TERMINATION:
+This license automatically terminates if you:
+
+Violate any terms of this agreement
+Use the software for prohibited purposes
+Distribute the software without permission
+Attempt to reverse engineer the software
+
+EFFECTS OF TERMINATION:
+
+You must immediately cease all use of the software
+You must delete all copies from your systems
+You must destroy any derivative works you created
+Survival clauses remain in effect after termination
+
+
+8. WARRANTIES AND LIABILITY
+NO WARRANTIES:
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. SENTINEL AI SYSTEMS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+LIMITATION OF LIABILITY:
+IN NO EVENT SHALL SENTINEL AI SYSTEMS BE LIABLE FOR ANY DAMAGES, INCLUDING DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, ARISING FROM USE OF THE SOFTWARE.
+INDEMNIFICATION:
+You agree to indemnify and hold harmless Sentinel AI Systems from any claims arising from your use of the software.
+
+9. ENFORCEMENT
+INJUNCTIVE RELIEF:
+
+Violation of this license may cause irreparable harm to Sentinel AI Systems
+Sentinel AI Systems is entitled to immediate injunctive relief for violations
+You agree that monetary damages alone would be inadequate remedy
+
+LEGAL COSTS:
+
+The prevailing party in any dispute is entitled to attorney fees and costs
+Sentinel AI Systems may pursue all available legal and equitable remedies
+
+
+10. GENERAL PROVISIONS
+GOVERNING LAW:
+
+This agreement is governed by United States federal law
+Disputes subject to jurisdiction of federal courts
+No jury trial - disputes resolved by bench trial or arbitration
+
+ENTIRE AGREEMENT:
+
+This license constitutes the complete agreement between parties
+Supersedes all prior agreements or understandings
+Can only be modified by written agreement signed by Sentinel AI Systems
+
+SEVERABILITY:
+
+If any provision is unenforceable, the remainder remains in full force
+Invalid provisions will be reformed to achieve original intent
+
+
+11. CONTACT INFORMATION
+LICENSING INQUIRIES:
+
+Commercial Licensing: 
+Technical Support: Available to licensed commercial users
+Legal Questions: 
+General Contact: jameskharwood2@gmail.com
+
+COMPANY INFORMATION:
+Sentinel AI Systems
+GitHub: https://github.com/jkh2/sentinel-memory-integration-tools
+Website: http://wwww.jameskeithharwood.com
+
+12. ACKNOWLEDGMENT
+By using this software, you acknowledge that you have read, understood, and agree to be bound by all terms of this ChatWeaver Proprietary License Agreement.
+You further acknowledge that this software represents valuable intellectual property of Sentinel AI Systems and agree to respect and protect these rights.
+
+VIOLATION OF THIS LICENSE AGREEMENT MAY RESULT IN IMMEDIATE TERMINATION OF YOUR RIGHTS AND LEGAL ACTION FOR DAMAGES AND INJUNCTIVE RELIEF.
+
+This license protects our intellectual property while allowing legitimate use. For commercial licensing opportunities, please contact Sentinel AI Systems.
+© 2025 Sentinel AI Systems. ChatWeaver is a trademark of Sentinel AI Systems. All rights reserved.
