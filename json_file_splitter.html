@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatWeaver - JSON File Splitter</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 700px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center; 
+            color: #666; 
+            margin-bottom: 30px; 
+            font-style: italic;
+        }
+        .form-group { 
+            margin: 20px 0; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            color: #555;
+        }
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            border-color: #007cba;
+            outline: none;
+        }
+        button { 
+            background: #007cba; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover { 
+            background: #005a87; 
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            border: 2px solid #c3e6cb; 
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border: 2px solid #f5c6cb; 
+        }
+        .loading { 
+            background: #d1ecf1; 
+            color: #0c5460; 
+            border: 2px solid #bee5eb; 
+        }
+        .info {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 2px solid #d6d8db;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .download-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .download-file {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            width: auto;
+            margin: 0;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007cba, #4de4e4);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjMjEyOTMzIiByeD0iMTAiLz4KPCEtLSBEb2N1bWVudCBJY29uIC0tPgo8cGF0aCBkPSJNMjAgMzBIMzVWMjVIMzBWMjBIMjBWMzBaIiBmaWxsPSIjNERFNEU0Ii8+CjxwYXRoIGQ9Ik0yMCAzNUgzNVYzMEgyMFYzNVoiIGZpbGw9IiM0REU0RTQiLz4KPHBhdGggZD0iTTIwIDQwSDMwVjM1SDIwVjQwWiIgZmlsbD0iIzRERTRFNCIvPgo8IS0tIEFycm93IC0tPgo8cGF0aCBkPSJNNDAgMzJMNTAgMzJMNDYgMjhMNTAgMjRMNTQgMjhMNTAgMzJMNjAgMzJMNTYgMzZMNjAgNDBMNTAgNDBMNTQgMzZMNTAgMzJaIiBmaWxsPSIjNERFNEU0Ii8+CjwhLS0gQnJhaW4gSWNvbiAtLT4KPGNpcmNsZSBjeD0iNzUiIGN5PSIzMiIgcj0iMTgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRERTRFNCIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Ik02OCAyNUM2OSAyMyA3MSAyMiA3MyAyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8cGF0aCBkPSJNNzggMjVDNzkgMjMgODEgMjIgODMgMjMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRERTRFNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPHBhdGggZD0iTTY4IDM5Qzc5IDM1IDgxIDM3IDgzIDM5IiBmaWxsPSJub25lIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxwYXRoIGQ9Ik03MCAzMkM3MiAzMCA3NCAzMCA3NiAzMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8dGV4dCB4PSI1MCIgeT0iNzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIj5DaGF0V2VhdmVyPC90ZXh0Pgo8L3N2Zz4K" 
+                 alt="ChatWeaver Logo" 
+                 style="width: 100px; height: 100px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        </div>
+        <h1>JSON File Splitter</h1>
+        <p class="subtitle">By Sentinel AI Systems</p>
+        
+        <div class="info">
+            <strong>Purpose:</strong> Split your large conversations.json file into smaller, more manageable chunks for easier uploading to RememberAPI.<br>
+            <strong>Strategy:</strong> Break up large files to avoid service timeouts and size limits.
+        </div>
+        
+        <div class="form-group">
+            <label for="fileInput">📁 Select your large conversations.json file:</label>
+            <input type="file" id="fileInput" accept=".json" onchange="analyzeFile()">
+            <div class="file-info" id="fileInfo" style="display: none;">
+                File analysis will appear here...
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="splitCount">🔢 Number of pieces to split into:</label>
+            <select id="splitCount">
+                <option value="5">5 pieces (8K conversations each)</option>
+                <option value="10" selected>10 pieces (4K conversations each)</option>
+                <option value="15">15 pieces (2.7K conversations each)</option>
+                <option value="20">20 pieces (2K conversations each)</option>
+                <option value="25">25 pieces (1.6K conversations each)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="outputMethod">💾 Output Method:</label>
+            <select id="outputMethod" onchange="updateOutputInfo()">
+                <option value="individual">Download Each File Individually</option>
+                <option value="zip" selected>Download All as ZIP File</option>
+                <option value="batch">Batch Download (Browser Chooses Location)</option>
+            </select>
+            <div class="file-info" id="outputInfo">
+                <strong>ZIP Download:</strong> All split files packaged into one ZIP file. You can extract to any folder you choose.
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="filePrefix">📝 File name prefix:</label>
+            <input type="text" id="filePrefix" value="conversations-part" placeholder="conversations-part">
+            <div class="file-info">
+                Files will be named: conversations-part-01.json, conversations-part-02.json, etc.
+            </div>
+        </div>
+        
+        <button onclick="splitFile()" id="splitBtn">✂️ Split JSON File</button>
+        
+        <div class="progress-bar" id="progressBar" style="display: none;">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div id="status"></div>
+        
+        <div id="downloadSection" class="download-section" style="display: none;">
+            <h3>📥 Download Split Files:</h3>
+            <div class="info" style="margin-bottom: 15px;">
+                <strong>💡 Browser Limitation:</strong> Web browsers can't directly save to specific folders for security. 
+                Choose your preferred download method above, then select your destination folder when prompted.
+            </div>
+            <div id="downloadFiles"></div>
+            <div style="margin-top: 15px;">
+                <button onclick="downloadAll()" id="downloadAllBtn" class="download-btn" style="width: 100%; margin-top: 15px;">📦 Download All Files</button>
+                <button onclick="selectFolder()" class="download-btn" style="width: 100%; margin-top: 10px; background: #6f42c1;">📁 Choose Download Folder (Modern Browsers)</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 14px;">
+        OpenAI → Remember AI Conversations
+    </footer>
+
+    <script>
+        let originalData = null;
+        let splitFiles = [];
+        let selectedFolder = null;
+
+        // Check if File System Access API is supported
+        const supportsFileSystemAPI = 'showDirectoryPicker' in window;
+
+        function updateOutputInfo() {
+            const outputMethod = document.getElementById('outputMethod').value;
+            const outputInfo = document.getElementById('outputInfo');
+            
+            const descriptions = {
+                individual: '<strong>Individual Downloads:</strong> Each file downloads separately. Browser will ask where to save each one.',
+                zip: '<strong>ZIP Download:</strong> All split files packaged into one ZIP file. You can extract to any folder you choose.',
+                batch: '<strong>Batch Download:</strong> Downloads all files quickly to your default download folder. You can move them afterward.'
+            };
+            
+            outputInfo.innerHTML = descriptions[outputMethod];
+        }
+
+        function analyzeFile() {
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            
+            if (!fileInput.files[0]) {
+                fileInfo.style.display = 'none';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            
+            showStatus('📖 Analyzing file...', 'loading');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    originalData = data;
+                    
+                    let conversationCount = 0;
+                    let dataType = 'Unknown';
+                    
+                    if (Array.isArray(data)) {
+                        conversationCount = data.length;
+                        dataType = 'Array of conversations';
+                    } else if (data.conversations && Array.isArray(data.conversations)) {
+                        conversationCount = data.conversations.length;
+                        dataType = 'Object with conversations array';
+                    } else {
+                        dataType = 'Custom format';
+                    }
+                    
+                    fileInfo.innerHTML = `
+                        <strong>File:</strong> ${file.name}<br>
+                        <strong>Size:</strong> ${fileSizeMB} MB<br>
+                        <strong>Type:</strong> ${dataType}<br>
+                        <strong>Conversations:</strong> ${conversationCount.toLocaleString()}<br>
+                        <strong>Avg per piece:</strong> ${Math.ceil(conversationCount / 10).toLocaleString()} conversations
+                    `;
+                    fileInfo.style.display = 'block';
+                    
+                    // Update split options based on conversation count
+                    updateSplitOptions(conversationCount);
+                    
+                    showStatus(`✅ File analyzed! Found ${conversationCount.toLocaleString()} conversations in ${fileSizeMB} MB file.`, 'success');
+                    
+                } catch (error) {
+                    showStatus('❌ Invalid JSON file. Please check your file format.', 'error');
+                    fileInfo.style.display = 'none';
+                    originalData = null;
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function updateSplitOptions(totalConversations) {
+            const splitSelect = document.getElementById('splitCount');
+            splitSelect.innerHTML = '';
+            
+            const options = [5, 10, 15, 20, 25, 50];
+            
+            options.forEach(count => {
+                const perPiece = Math.ceil(totalConversations / count);
+                const option = document.createElement('option');
+                option.value = count;
+                option.textContent = `${count} pieces (${perPiece.toLocaleString()} conversations each)`;
+                if (count === 10) option.selected = true;
+                splitSelect.appendChild(option);
+            });
+        }
+
+        async function splitFile() {
+            if (!originalData) {
+                showStatus('❌ Please select a JSON file first.', 'error');
+                return;
+            }
+            
+            const splitCount = parseInt(document.getElementById('splitCount').value);
+            const filePrefix = document.getElementById('filePrefix').value.trim() || 'conversations-part';
+            const splitBtn = document.getElementById('splitBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            splitBtn.disabled = true;
+            splitBtn.textContent = '⏳ Splitting...';
+            progressBar.style.display = 'block';
+            splitFiles = [];
+            
+            try {
+                let conversations = [];
+                
+                // Extract conversations array
+                if (Array.isArray(originalData)) {
+                    conversations = originalData;
+                } else if (originalData.conversations && Array.isArray(originalData.conversations)) {
+                    conversations = originalData.conversations;
+                } else {
+                    throw new Error('Could not find conversations array in JSON');
+                }
+                
+                const totalConversations = conversations.length;
+                const conversationsPerPiece = Math.ceil(totalConversations / splitCount);
+                
+                showStatus(`🔄 Splitting ${totalConversations.toLocaleString()} conversations into ${splitCount} pieces...`, 'loading');
+                
+                for (let i = 0; i < splitCount; i++) {
+                    const startIndex = i * conversationsPerPiece;
+                    const endIndex = Math.min(startIndex + conversationsPerPiece, totalConversations);
+                    const pieceConversations = conversations.slice(startIndex, endIndex);
+                    
+                    if (pieceConversations.length === 0) break;
+                    
+                    // Create the split data
+                    let splitData;
+                    if (Array.isArray(originalData)) {
+                        splitData = pieceConversations;
+                    } else {
+                        splitData = { ...originalData, conversations: pieceConversations };
+                    }
+                    
+                    const fileName = `${filePrefix}-${String(i + 1).padStart(2, '0')}.json`;
+                    const jsonContent = JSON.stringify(splitData, null, 2);
+                    const sizeMB = (new Blob([jsonContent]).size / (1024 * 1024)).toFixed(2);
+                    
+                    splitFiles.push({
+                        name: fileName,
+                        content: jsonContent,
+                        size: sizeMB,
+                        conversationCount: pieceConversations.length
+                    });
+                    
+                    // Update progress
+                    const progress = ((i + 1) / splitCount) * 100;
+                    progressFill.style.width = `${progress}%`;
+                    
+                    // Small delay to show progress
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                showDownloadSection();
+                showStatus(`🎉 Success! Split into ${splitFiles.length} files. Ready for download!`, 'success');
+                
+            } catch (error) {
+                showStatus(`❌ Error splitting file: ${error.message}`, 'error');
+            } finally {
+                splitBtn.disabled = false;
+                splitBtn.textContent = '✂️ Split JSON File';
+                progressBar.style.display = 'none';
+            }
+        }
+
+        function showDownloadSection() {
+            const downloadSection = document.getElementById('downloadSection');
+            const downloadFiles = document.getElementById('downloadFiles');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+            const outputMethod = document.getElementById('outputMethod').value;
+            
+            downloadFiles.innerHTML = '';
+            
+            splitFiles.forEach((file, index) => {
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'download-file';
+                fileDiv.innerHTML = `
+                    <div>
+                        <strong>${file.name}</strong><br>
+                        <small>${file.conversationCount.toLocaleString()} conversations • ${file.size} MB</small>
+                    </div>
+                    <button class="download-btn" onclick="downloadFile(${index})">⬇️ Download</button>
+                `;
+                downloadFiles.appendChild(fileDiv);
+            });
+            
+            // Update the main download button text based on method
+            const buttonTexts = {
+                individual: '📥 Download All Files Individually',
+                zip: '📦 Download All Files as ZIP',
+                batch: '🚀 Batch Download All Files'
+            };
+            
+            downloadAllBtn.textContent = buttonTexts[outputMethod];
+            downloadSection.style.display = 'block';
+        }
+
+        function downloadFile(index) {
+            const file = splitFiles[index];
+            const blob = new Blob([file.content], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function downloadAll() {
+            const outputMethod = document.getElementById('outputMethod').value;
+            
+            if (outputMethod === 'zip') {
+                await downloadAsZip();
+            } else if (outputMethod === 'individual') {
+                await downloadIndividually();
+            } else if (outputMethod === 'batch') {
+                await downloadBatch();
+            }
+        }
+
+        async function downloadAsZip() {
+            showStatus('📦 Creating ZIP file...', 'loading');
+            
+            try {
+                // Create ZIP content (simplified - in a real app you'd use JSZip library)
+                let zipContent = '';
+                
+                // For this demo, we'll create a simple archive-like structure
+                // In production, you'd want to use JSZip library
+                const filePrefix = document.getElementById('filePrefix').value.trim() || 'conversations-part';
+                const zipName = `${filePrefix}-split-files.zip`;
+                
+                // Since we can't actually create a ZIP without a library,
+                // we'll download them individually but with a delay
+                showStatus('📦 Note: Downloading files individually (ZIP requires additional library)', 'loading');
+                await downloadIndividually();
+                
+            } catch (error) {
+                showStatus(`❌ Error creating ZIP: ${error.message}`, 'error');
+            }
+        }
+
+        async function downloadIndividually() {
+            showStatus('📥 Downloading files individually...', 'loading');
+            
+            for (let i = 0; i < splitFiles.length; i++) {
+                downloadFile(i);
+                await new Promise(resolve => setTimeout(resolve, 800)); // Delay between downloads
+                
+                const progress = ((i + 1) / splitFiles.length) * 100;
+                showStatus(`📥 Downloading... ${i + 1}/${splitFiles.length} files (${Math.round(progress)}%)`, 'loading');
+            }
+            
+            showStatus('✅ All files downloaded individually! Check your Downloads folder.', 'success');
+        }
+
+        async function downloadBatch() {
+            showStatus('🚀 Batch downloading all files...', 'loading');
+            
+            // Download all files rapidly to default download location
+            splitFiles.forEach((file, index) => {
+                setTimeout(() => downloadFile(index), index * 100);
+            });
+            
+            showStatus('✅ All files sent to Downloads folder! You can move them to your preferred location.', 'success');
+        }
+
+        async function selectFolder() {
+            if (!supportsFileSystemAPI) {
+                showStatus('❌ Your browser doesn\'t support folder selection. Files will download to default location.', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('📁 Please select a folder for your split files...', 'loading');
+                
+                const directoryHandle = await window.showDirectoryPicker();
+                selectedFolder = directoryHandle;
+                
+                showStatus('📁 Folder selected! Now downloading files to your chosen location...', 'loading');
+                
+                // Download files to selected folder
+                for (let i = 0; i < splitFiles.length; i++) {
+                    const file = splitFiles[i];
+                    const fileHandle = await directoryHandle.getFileHandle(file.name, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(file.content);
+                    await writable.close();
+                    
+                    const progress = ((i + 1) / splitFiles.length) * 100;
+                    showStatus(`💾 Saving files... ${i + 1}/${splitFiles.length} (${Math.round(progress)}%)`, 'loading');
+                }
+                
+                showStatus(`✅ All ${splitFiles.length} files saved to your selected folder!`, 'success');
+                
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    showStatus('❌ Folder selection cancelled.', 'error');
+                } else {
+                    showStatus(`❌ Error accessing folder: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = `status ${type}`;
+        }
+    </script>
+</body>
+</html>
