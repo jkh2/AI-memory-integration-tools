@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatWeaver - Test JSON Creator</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center; 
+            color: #666; 
+            margin-bottom: 30px; 
+            font-style: italic;
+        }
+        .form-group { 
+            margin: 20px 0; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            color: #555;
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #007cba;
+            outline: none;
+        }
+        button { 
+            background: #007cba; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover { 
+            background: #005a87; 
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            border: 2px solid #c3e6cb; 
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border: 2px solid #f5c6cb; 
+        }
+        .info {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 2px solid #d6d8db;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .output-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 6px;
+            border: 1px solid #b3d9ff;
+        }
+        .json-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #444;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            flex: 1;
+            min-width: 150px;
+            background: #28a745;
+            margin: 0;
+        }
+        .action-btn:hover {
+            background: #218838;
+        }
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .preview-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .preview-card:hover {
+            background: #e9ecef;
+            border-color: #007cba;
+        }
+        .preview-card.selected {
+            background: #d1ecf1;
+            border-color: #007cba;
+            border-width: 2px;
+        }
+        .preview-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        .preview-desc {
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjMjEyOTMzIiByeD0iMTAiLz4KPCEtLSBTcGlkZXIgV2ViIC0tPgo8IS0tIFJhZGlhbCBsaW5lcyBmcm9tIGNlbnRlciAtLT4KPGxpbmUgeDE9IjUwIiB5MT0iNTAiIHgyPSI1MCIgeTI9IjE1IiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxsaW5lIHgxPSI1MCIgeTE9IjUwIiB4Mj0iNzMiIHkyPSIyNyIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8bGluZSB4MT0iNTAiIHkxPSI1MCIgeDI9Ijg1IiB5Mj0iNTAiIHN0cm9rZT0iIzRERTRFNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGxpbmUgeDE9IjUwIiB5MT0iNTAiIHgyPSI3MyIgeTI9IjczIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxsaW5lIHgxPSI1MCIgeTE9IjUwIiB4Mj0iNTAiIHkyPSI4NSIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8bGluZSB4MT0iNTAiIHkxPSI1MCIgeDI9IjI3IiB5Mj0iNzMiIHN0cm9rZT0iIzRERTRFNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGxpbmUgeDE9IjUwIiB5MT0iNTAiIHgyPSIxNSIgeTI9IjUwIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxsaW5lIHgxPSI1MCIgeTE9IjUwIiB4Mj0iMjciIHkyPSIyNyIgc3Ryb2tlPSIjNERFNEU0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8IS0tIENvbmNlbnRyaWMgd2ViIGNpcmNsZXMgLS0+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjEyIiBmaWxsPSJub25lIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjMwIiBmaWxsPSJub25lIiBzdHJva2U9IiM0REU0RTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjwhLS0gQ2hhdCBCdWJibGUgaW4gY2VudGVyIC0tPgo8Y2lyY2xlIGN4PSI1MCIgY3k9IjQ3IiByPSI4IiBmaWxsPSIjNERFNEU0Ii8+CjxjaXJjbGUgY3g9IjU2IiBjeT0iNTMiIHI9IjQiIGZpbGw9IiM0REU0RTQiLz4KPGNpcmNsZSBjeD0iNjAiIGN5PSI1NiIgcj0iMiIgZmlsbD0iIzRERTRFNCIvPgo8dGV4dCB4PSI1MCIgeT0iODAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtd2VpZ2h0PSJib2xkIj5DaGF0V2VhdmVyPC90ZXh0Pgo8L3N2Zz4K" 
+                 alt="ChatWeaver Logo" 
+                 style="width: 100px; height: 100px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        </div>
+        <h1>Test JSON Creator</h1>
+        <p class="subtitle">By Sentinel AI Systems</p>
+        
+        <div class="info">
+            <strong>🧪 Purpose:</strong> Generate sample conversation files for testing RememberAPI uploads and troubleshooting integration issues before processing your real conversation archives.
+        </div>
+        
+        <div class="form-group">
+            <label>📋 Choose Test File Type:</label>
+            <div class="preview-grid">
+                <div class="preview-card" onclick="selectTemplate('minimal')" id="template-minimal">
+                    <div class="preview-title">Minimal Test</div>
+                    <div class="preview-desc">1 conversation, 2 messages<br>Perfect for basic API testing</div>
+                </div>
+                <div class="preview-card" onclick="selectTemplate('small')" id="template-small">
+                    <div class="preview-title">Small Test</div>
+                    <div class="preview-desc">5 conversations, 20 messages<br>Good for functionality testing</div>
+                </div>
+                <div class="preview-card" onclick="selectTemplate('medium')" id="template-medium">
+                    <div class="preview-title">Medium Test</div>
+                    <div class="preview-desc">25 conversations, 100 messages<br>Ideal for chunk testing</div>
+                </div>
+                <div class="preview-card" onclick="selectTemplate('large')" id="template-large">
+                    <div class="preview-title">Large Test</div>
+                    <div class="preview-desc">100 conversations, 400 messages<br>Comprehensive integration test</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="customPrefix">📝 Conversation Title Prefix:</label>
+            <input type="text" id="customPrefix" value="Test Conversation" placeholder="Enter conversation title prefix">
+            <div class="file-info">
+                Conversations will be named: "Test Conversation 1", "Test Conversation 2", etc.
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="includeTimestamps">🕐 Include realistic timestamps:</label>
+            <select id="includeTimestamps">
+                <option value="true">Yes - Add realistic conversation dates</option>
+                <option value="false">No - Use placeholder timestamps</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="contentStyle">💬 Conversation Content Style:</label>
+            <select id="contentStyle">
+                <option value="generic">Generic - Simple test messages</option>
+                <option value="realistic">Realistic - AI conversation examples</option>
+                <option value="technical">Technical - Programming and AI topics</option>
+                <option value="mixed">Mixed - Variety of conversation types</option>
+            </select>
+        </div>
+        
+        <button onclick="generateTestJSON()" id="generateBtn">🚀 Generate Test JSON</button>
+        
+        <div id="status"></div>
+        
+        <div id="outputSection" class="output-section" style="display: none;">
+            <h3>📄 Generated Test JSON</h3>
+            <div class="file-info" id="fileStats">
+                File statistics will appear here...
+            </div>
+            
+            <div class="json-output" id="jsonOutput">
+                Generated JSON will appear here...
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn" onclick="downloadJSON()">📥 Download JSON File</button>
+                <button class="action-btn secondary" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+                <button class="action-btn secondary" onclick="validateJSON()">✅ Validate JSON</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 14px;">
+        OpenAI → Remember AI Conversations
+    </footer>
+
+    <script>
+        let selectedTemplate = 'minimal';
+        let generatedJSON = '';
+        
+        function selectTemplate(template) {
+            // Remove selection from all cards
+            document.querySelectorAll('.preview-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to clicked card
+            document.getElementById(`template-${template}`).classList.add('selected');
+            selectedTemplate = template;
+        }
+        
+        function generateTestJSON() {
+            const prefix = document.getElementById('customPrefix').value.trim() || 'Test Conversation';
+            const includeTimestamps = document.getElementById('includeTimestamps').value === 'true';
+            const contentStyle = document.getElementById('contentStyle').value;
+            
+            showStatus('🔧 Generating test JSON...', 'info');
+            
+            try {
+                const testData = createTestData(selectedTemplate, prefix, includeTimestamps, contentStyle);
+                generatedJSON = JSON.stringify(testData, null, 2);
+                
+                // Display results
+                document.getElementById('jsonOutput').textContent = generatedJSON;
+                document.getElementById('outputSection').style.display = 'block';
+                
+                // Show statistics
+                const stats = analyzeTestData(testData);
+                document.getElementById('fileStats').innerHTML = `
+                    <strong>📊 Test File Statistics:</strong><br>
+                    <strong>Conversations:</strong> ${stats.conversations}<br>
+                    <strong>Total Messages:</strong> ${stats.messages}<br>
+                    <strong>File Size:</strong> ${stats.sizeKB} KB<br>
+                    <strong>Compatible:</strong> OpenAI conversation export format
+                `;
+                
+                showStatus(`✅ Generated ${stats.conversations} conversations with ${stats.messages} messages successfully!`, 'success');
+                
+            } catch (error) {
+                showStatus(`❌ Error generating JSON: ${error.message}`, 'error');
+            }
+        }
+        
+        function createTestData(template, prefix, includeTimestamps, contentStyle) {
+            const counts = {
+                minimal: 1,
+                small: 5,
+                medium: 25,
+                large: 100
+            };
+            
+            const conversationCount = counts[template] || 1;
+            const conversations = [];
+            
+            for (let i = 1; i <= conversationCount; i++) {
+                const conversation = createConversation(i, prefix, includeTimestamps, contentStyle);
+                conversations.push(conversation);
+            }
+            
+            return conversations;
+        }
+        
+        function createConversation(index, prefix, includeTimestamps, contentStyle) {
+            const baseTime = includeTimestamps ? 
+                Math.floor(Date.now() / 1000) - (index * 86400) : // Spread over days
+                1640995200; // Fixed timestamp
+            
+            const messageCount = Math.floor(Math.random() * 6) + 2; // 2-8 messages per conversation
+            const mapping = {};
+            
+            for (let m = 0; m < messageCount; m++) {
+                const isUser = m % 2 === 0;
+                const messageId = `msg-${index}-${m}`;
+                const content = generateMessageContent(isUser, m, contentStyle, index);
+                
+                mapping[messageId] = {
+                    id: messageId,
+                    message: {
+                        id: messageId,
+                        author: {
+                            role: isUser ? 'user' : 'assistant',
+                            metadata: {}
+                        },
+                        content: {
+                            content_type: 'text',
+                            parts: [content]
+                        },
+                        create_time: baseTime + (m * 300) // 5 minutes between messages
+                    },
+                    parent: m > 0 ? `msg-${index}-${m-1}` : null,
+                    children: m < messageCount - 1 ? [`msg-${index}-${m+1}`] : []
+                };
+            }
+            
+            return {
+                title: `${prefix} ${index}`,
+                create_time: baseTime,
+                mapping: mapping,
+                moderation_results: [],
+                current_node: `msg-${index}-${messageCount-1}`,
+                plugin_ids: null,
+                conversation_id: `conv-${index}`,
+                conversation_template_id: null,
+                id: `conv-${index}`
+            };
+        }
+        
+        function generateMessageContent(isUser, messageIndex, contentStyle, conversationIndex) {
+            const styles = {
+                generic: {
+                    user: [
+                        "Hello, this is a test message.",
+                        "Can you help me with something?",
+                        "What do you think about this?",
+                        "Thank you for your help.",
+                        "That makes sense to me."
+                    ],
+                    assistant: [
+                        "Hello! I'm here to help you with your test.",
+                        "Of course! I'd be happy to assist you.",
+                        "I think that's a great question to explore.",
+                        "You're welcome! Feel free to ask anything else.",
+                        "I'm glad that was helpful to you."
+                    ]
+                },
+                realistic: {
+                    user: [
+                        "I'm working on a project that involves processing conversation data. Can you help me understand the best approach?",
+                        "What are the key considerations when integrating AI memory systems?",
+                        "How should I structure my conversation exports for maximum compatibility?",
+                        "Can you explain the difference between different memory storage approaches?",
+                        "What would you recommend for someone just starting with AI memory integration?"
+                    ],
+                    assistant: [
+                        "I'd be happy to help you with your conversation data processing project! The key is to start with a clear understanding of your data structure and desired outcomes.",
+                        "When integrating AI memory systems, you'll want to consider factors like data format compatibility, chunking strategies, and API efficiency.",
+                        "For conversation exports, it's important to maintain the original structure while ensuring compatibility with your target memory system.",
+                        "Different memory storage approaches each have their strengths: knowledge banks for searchable content, core memory for personalized context.",
+                        "For beginners, I'd recommend starting with small test datasets and gradually scaling up as you become comfortable with the tools and processes."
+                    ]
+                },
+                technical: {
+                    user: [
+                        "I'm debugging an API integration issue with JSON parsing. The nested structure seems to be causing problems.",
+                        "What's the best way to handle rate limiting when uploading large datasets?",
+                        "How do chunking algorithms affect retrieval performance in vector databases?",
+                        "Can you help me optimize my conversation processing pipeline?",
+                        "What are the trade-offs between different embedding approaches for conversation data?"
+                    ],
+                    assistant: [
+                        "JSON parsing issues with nested structures often stem from inconsistent key names or unexpected data types. I'd recommend implementing robust error handling and validation.",
+                        "For rate limiting, implement exponential backoff with jitter, batch your requests appropriately, and monitor your quota usage in real-time.",
+                        "Chunking algorithms significantly impact retrieval: smaller chunks give more precise results but less context, while larger chunks provide more context but may reduce precision.",
+                        "Pipeline optimization depends on your specific use case, but generally involves balancing processing speed, memory usage, and output quality.",
+                        "Embedding approaches involve trade-offs between computational cost, semantic understanding, and retrieval accuracy. Consider your specific domain and performance requirements."
+                    ]
+                },
+                mixed: {
+                    user: [
+                        "What's the weather like today?",
+                        "Can you help me write a Python script for data processing?",
+                        "I'm planning a vacation to Japan. Any recommendations?",
+                        "How do neural networks actually work?",
+                        "What's your favorite book recommendation?"
+                    ],
+                    assistant: [
+                        "I don't have access to real-time weather data, but I'd recommend checking a reliable weather service for current conditions in your area.",
+                        "I'd be happy to help you write a Python script! What kind of data processing are you looking to accomplish?",
+                        "Japan is wonderful! Consider visiting during spring for cherry blossoms or fall for beautiful foliage. Tokyo, Kyoto, and Osaka are great starting points.",
+                        "Neural networks are computational models inspired by biological neurons. They learn patterns by adjusting connection weights through training on data.",
+                        "For a great read, I'd suggest 'The Pragmatic Programmer' for technical growth, or 'Sapiens' for fascinating insights into human history and behavior."
+                    ]
+                }
+            };
+            
+            const styleMessages = styles[contentStyle] || styles.generic;
+            const messages = isUser ? styleMessages.user : styleMessages.assistant;
+            const messageArray = messages || styleMessages.user;
+            
+            return messageArray[messageIndex % messageArray.length];
+        }
+        
+        function analyzeTestData(data) {
+            const conversations = data.length;
+            let totalMessages = 0;
+            
+            data.forEach(conv => {
+                if (conv.mapping) {
+                    totalMessages += Object.keys(conv.mapping).length;
+                }
+            });
+            
+            const jsonString = JSON.stringify(data, null, 2);
+            const sizeKB = Math.round(new Blob([jsonString]).size / 1024);
+            
+            return {
+                conversations,
+                messages: totalMessages,
+                sizeKB
+            };
+        }
+        
+        function downloadJSON() {
+            if (!generatedJSON) {
+                showStatus('❌ No JSON generated yet. Create a test file first.', 'error');
+                return;
+            }
+            
+            const blob = new Blob([generatedJSON], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const prefix = document.getElementById('customPrefix').value.trim() || 'test';
+            const filename = `${prefix.toLowerCase().replace(/\s+/g, '-')}-${selectedTemplate}.json`;
+            
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus(`✅ Downloaded: ${filename}`, 'success');
+        }
+        
+        function copyToClipboard() {
+            if (!generatedJSON) {
+                showStatus('❌ No JSON generated yet. Create a test file first.', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(generatedJSON).then(() => {
+                showStatus('✅ JSON copied to clipboard!', 'success');
+            }).catch(() => {
+                showStatus('❌ Failed to copy to clipboard. Try selecting and copying manually.', 'error');
+            });
+        }
+        
+        function validateJSON() {
+            if (!generatedJSON) {
+                showStatus('❌ No JSON generated yet. Create a test file first.', 'error');
+                return;
+            }
+            
+            try {
+                const parsed = JSON.parse(generatedJSON);
+                const isValid = Array.isArray(parsed) && parsed.length > 0 && 
+                               parsed.every(conv => conv.mapping && conv.title);
+                
+                if (isValid) {
+                    showStatus('✅ JSON is valid and compatible with OpenAI conversation format!', 'success');
+                } else {
+                    showStatus('⚠️ JSON is valid but may not be fully compatible with expected format.', 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Invalid JSON: ${error.message}`, 'error');
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        // Initialize with minimal template selected
+        selectTemplate('minimal');
+    </script>
+</body>
+</html>
